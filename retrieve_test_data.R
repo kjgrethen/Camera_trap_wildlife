@@ -57,11 +57,14 @@ setnames(sub_annot, c("Study area name", "serie name", "query_Annotations_specie
                     c("area", "series", "species", "type", "certainty", "count",
                       "date", "time"))
 
+#check for duplicate filenames
+dupl_annot = sub_annot[, .N, by = .(filename)][N > 1]
 
-
+#delete duplicates (we have no way of extracting based on seconds as they are often not written or inconsistent)
+sub_annot = sub_annot[!(filename %in% dupl_annot$filename),]
 
 #subset files by which series were annotated
-sub_files = files[series %in% sub_annot$series, ]
+sub_files = files[!series %in% sub_annot$series, ]
 
 #library(exifr)
 #test = read_exif(test_files[, filepath])
@@ -116,6 +119,11 @@ sub_files[, TimeStampCET := with_tz(TimeStampUTC, tzone = "Europe/Copenhagen")]
 
 sub_files[, filename := paste0(series, "_file_", format(TimeStampCET, "%Y%m%d_%H%M00"))]
 
+#detect duplicates
+dupl_files = sub_files[, .N, by = .(filename)][N > 1]
+
+#delete duplicates
+sub_files = sub_files[!(filename %in% dupl_files$filename),]
 
 # Perform full outer join by 'filename'
 testDataSet <- merge(
@@ -124,6 +132,9 @@ testDataSet <- merge(
   by = "filename",
   all = TRUE  # full outer join
 )
+
+#detect duplicates
+dupl = testDataSet[, .N, by = .(filename)][N > 1]
 
 match = testDataSet[!(is.na(filepath) | is.na(species)),]
 unmatch_annot = testDataSet[is.na(filepath),]
