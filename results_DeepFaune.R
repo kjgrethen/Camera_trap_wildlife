@@ -1,7 +1,7 @@
 # Script to compare deepfaune output to annotations
 
 #clear workspace
-#rm(list = ls())
+rm(list = ls())
 
 set.seed(42)
 library(data.table) # data.frames better
@@ -71,4 +71,4 @@ mean(compar$prediction == 'undefined')
 mismatch = compar[species != prediction & prediction != "empty",]
 test = mismatch[prediction != "undefined"]
 
-
+fwrite( test,"Mismatch_Deepfaune.csv", sep = ";")
