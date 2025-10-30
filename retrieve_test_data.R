@@ -64,7 +64,7 @@ dupl_annot = sub_annot[, .N, by = .(filename)][N > 1]
 sub_annot = sub_annot[!(filename %in% dupl_annot$filename),]
 
 #subset files by which series were annotated
-sub_files = files[!series %in% sub_annot$series, ]
+sub_files = files[series %in% sub_annot$series, ]
 
 #library(exifr)
 #test = read_exif(test_files[, filepath])
