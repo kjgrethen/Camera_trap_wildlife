@@ -34,6 +34,10 @@ unique(compar$species)
 
 unique(compar$prediction)
 
+#cannot be compared as no category
+test = compar[species == "raccoon dog", ]
+compar = compar[species != "raccoon dog", ]
+
 compar[prediction == "wild boar", prediction := "boar" ]
 compar[prediction == "lagomorph", prediction := "hare" ]
 compar[prediction == "cow", prediction := "ungulate sp." ]
@@ -42,7 +46,7 @@ compar[species == "martes foina", species := "mustelid" ]
 compar[species == "marten sp.", species := "mustelid" ]
 compar[species == "martes martes", species := "mustelid" ]
 compar[species == "polecat", species := "mustelid" ]
-compar[species == "raccoon dog", species := "raccoon" ]
+#compar[species == "raccoon dog", species := "raccoon" ]
 compar[species == "unidentified mammal", species := "undefined" ]
 
 categories = unique(c(compar$species, compar$prediction))
