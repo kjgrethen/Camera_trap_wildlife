@@ -13,17 +13,18 @@ library(lubridate) #for working with timestamps
 
 #load files
 
-annot = fread(file.path("C:/Users/au784040/OneDrive - Aarhus universitet/Documents/Projects/WildCam/WildCam_testDataSet.csv"))
-deepfaune = fread(file.path("C:/Users/au784040/OneDrive - Aarhus universitet/Documents/Projects/WildCam/deepfauneResults1.csv"))
+annot = fread(file.path("C:/Users/au761482/Downloads/WildCam_testDataSet.csv"))
+deepfaune = fread(file.path("C:/Users/au761482/OneDrive - Aarhus universitet/Documents/WildCam/testdata_heavy.csv"))
 
 #extract video and series names from paths
-split_paths = deepfaune[, tstrsplit(filename, "\\" , fixed = TRUE)]
-deepfaune[, series := split_paths[, V6]]
+#Use \\ for windows paths and / for linux
+split_paths = deepfaune[, tstrsplit(filename, "/" , fixed = TRUE)]
+deepfaune[, series := split_paths[, V10]]
 deepfaune[, video_name := tools::file_path_sans_ext(basename(filename))]
 
-setnames(deepfaune, c("filename", "date", "count"), c("df_filepath", "df_date", "df_count"))
+setnames(deepfaune, c("filename", "dates", "count"), c("df_filepath", "df_date", "df_count"))
 
-compar = merge(deepfaune[, c("series","video_name", 'prediction', "score", "top1", "df_count" )], 
+compar = merge(deepfaune[, c("series","video_name", 'prediction', "score", "Top1", "df_count" )], 
                annot, by = c("series", "video_name"))
 
 setcolorder(compar, c("filename", "filepath", "video_name","area", "series", 
@@ -36,11 +37,11 @@ unique(compar$prediction)
 
 #cannot be compared as no category
 test = compar[species == "raccoon dog", ]
-compar = compar[species != "raccoon dog", ]
+# compar = compar[species != "raccoon dog", ]
 
-compar[prediction == "wild boar", prediction := "boar" ]
-compar[prediction == "lagomorph", prediction := "hare" ]
-compar[prediction == "cow", prediction := "ungulate sp." ]
+compar[Top1 == "wild boar", Top1 := "boar" ]
+compar[Top1 == "lagomorph", Top1 := "hare" ]
+compar[Top1 == "cow", Top1 := "ungulate sp." ]
 compar[species == "mustelid sp.", species := "mustelid" ]
 compar[species == "martes foina", species := "mustelid" ]
 compar[species == "marten sp.", species := "mustelid" ]
@@ -58,7 +59,7 @@ table(compar$prediction, compar$species)
 table(compar$count, compar$df_count)
 
 #Classification accuracy
-mean(compar$prediction == compar$species)
+mean(compar$Top1 == compar$species)
 
 #count accuracy
 mean(compar$count == compar$df_count)
