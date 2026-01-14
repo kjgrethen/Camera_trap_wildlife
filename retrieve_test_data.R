@@ -13,7 +13,7 @@ rm(list = ls())
 #set path
 data_path = file.path("D:/NHMA")
 
-wd = file.path("C:/Users/au784040/Documents_C/WildCam_project")
+wd = file.path("C:/Users/au761482/OneDrive - Aarhus universitet/Documents/WildCam")
 
 #read in file containing all paths to images in directory
 files = fread(file = file.path(data_path, "file_list.txt"), header = FALSE, col.names = "filepath", sep = "\n")
@@ -44,6 +44,24 @@ files[, video_name := tools::file_path_sans_ext(basename(filepath))]
 files[, dir := dirname(filepath)]
 files[, series := split_paths[, V5]]
 
+#Fixing series from file paths
+path_series = files$series
+path_series = word(path_series, 1)
+path_series = str_to_title(path_series)
+path_series[path_series == "Klelund0029_210315_210421"] = "Klelund_0029_210315_210421"
+path_series[path_series == "Klelund_0031_210319_210608"] = "Klelund_0031_210319_210408"
+path_series[path_series == "Klelund_0036_310321_210304obs"] = "Klelund_0036_310321_210304"
+path_series[path_series == "Klelund_0031_210319_210608"] = "Klelund_0031_210319_210408"
+path_series[path_series == "Klelund_0040_220104_220209"] = "Klelund_0040_220104_220703"
+path_series[path_series == "Klelund_0040_220209_220218"] = "Klelund_0040_220104_220703"
+#	Klelund_0047_211125_211207 was all people/empty
+# Klelund_0048_231004_241204 missing annotations
+# Klelund_0056 missing annotations
+# Klelund_079 missing annotations
+# Klelund_084 missing annotations
+# Remaining folders unchecked
+files$series = path_series
+
 #select subset of available videos from annotations
 
 #subset annotations by which series match and select useful columns
@@ -71,7 +89,7 @@ sub_files = files[series %in% sub_annot$series, ]
 #USE columns: FileModifyDate and CreateDate
 #run with external exif tool because exif r is too slow
 
-exiftool_path = file.path("C:/Users/au784040/Documents_C/exiftool-13.32_64/exiftool.exe")
+exiftool_path = file.path("C:/Users/au761482/Downloads/exiftool-13.40_64/exiftool-13.40_64/exiftool(-k).exe")
 
 filepaths <- sub_files$filepath
 batch_size <- 1000
